@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Dashboard | Stackly EV Charging</title>
+<meta name="robots" content="noindex">
+<script>try{var t=localStorage.getItem('stacklyTheme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="app">
+<aside class="side" aria-label="Sidebar">
+<div class="brand"><a href="index.html" class="logo" aria-label="Stackly home"><img src="https://wsrv.nl/?url=https://snabsolutions.in/wp-content/uploads/2026/02/stackly-snab-solutions.png&w=280&output=webp&q=85&fit=cover" alt="Stackly" width="130" height="42" onerror="this.outerHTML='<span class=&quot;logo-fb&quot;>Stack<b>ly</b></span>'"></a></div>
+<div class="nav-title">Customer</div>
+<nav class="nav"><button data-view="overview"><span data-ic="home"></span>Overview</button><button data-view="stations"><span data-ic="map"></span>Find Stations</button><button data-view="bookings"><span data-ic="calendar"></span>My Bookings</button><button data-view="history"><span data-ic="history"></span>Charging History</button><button data-view="wallet"><span data-ic="wallet"></span>Wallet</button><button data-view="profile"><span data-ic="user"></span>My Profile</button></nav>
+<div class="nav">
+<a href="index.html"><span data-ic="home"></span>Back to website</a>
+</div>
+<div class="who"><small>Login ID</small><div class="lid" data-bind="lid">—</div><div class="nm" data-bind="name"></div><div class="tm" data-bind="time"></div></div>
+</aside>
+<div class="scrim"></div>
+<div class="main">
+<header class="top">
+<button class="burger" id="burger" aria-label="Open menu"><span data-ic="menu"></span></button>
+<h1 id="pageTitle">Overview</h1>
+<button class="iconbtn" id="themeBtn" aria-label="Toggle light / dark theme"><span data-ic="sun"></span></button>
+<button class="iconbtn" id="bellBtn" aria-label="Notifications"><span data-ic="bell"></span><span class="dot hide" id="bellDot">0</span></button>
+<div class="chip"><span class="avatar" data-bind="ini">··</span><div class="cn"><b data-bind="lid">—</b><span>Customer</span></div></div>
+<button class="btn btn-ghost" id="logoutBtn"><span data-ic="logout"></span><span class="cn">Sign out</span></button>
+<div class="drop hide" id="bellDrop"></div>
+</header>
+<main class="content"><section class="view" id="view-overview"></section><section class="view" id="view-stations"></section><section class="view" id="view-bookings"></section><section class="view" id="view-history"></section><section class="view" id="view-wallet"></section><section class="view" id="view-profile"></section></main>
+</div>
+</div>
+<script src="js/dashboard.js"></script>
+<script src="js/customer.js"></script>
+</body>
+</html>
