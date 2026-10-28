@@ -20,12 +20,14 @@
 <button type="button" class="role on" role="tab" aria-selected="true" data-role="customer"><span data-ic="user"></span><b>Customer</b><span>Book &amp; charge your EV</span></button>
 <button type="button" class="role" role="tab" aria-selected="false" data-role="admin"><span data-ic="shield"></span><b>Station Admin</b><span>Manage the network</span></button>
 </div>
+<div class="alert ok hide" id="lOk" role="status"></div>
 <div class="alert bad hide" id="lErr" role="alert"></div>
 <form id="lf" novalidate>
-<div class="field"><label for="lid" id="lidL">Customer Login ID</label><input class="input" id="lid" autocomplete="username" placeholder="e.g. CUST1024" maxlength="30"><div class="ferr" id="eId"></div></div>
+<div class="field"><label for="lid" id="lidL">Customer Login ID or Email</label><input class="input" id="lid" autocomplete="username" placeholder="e.g. CUST1024" maxlength="30"><div class="ferr" id="eId"></div></div>
 <div class="field"><label for="lpw">Password</label><div class="pw"><input class="input" id="lpw" type="password" autocomplete="current-password" placeholder="Enter your password" maxlength="40"><button type="button" id="eye" aria-label="Show password"><span data-ic="eye"></span></button></div><div class="ferr" id="ePw"></div></div>
 <button class="btn btn-primary" type="submit" style="width:100%;padding:13px" id="lb">Sign in</button>
 </form>
+<p class="alt" id="suWrap">New to Stackly? <a href="signup.html">Create an account</a></p>
 <div class="demo"><span id="dm">Demo: <code>CUST1024</code> / <code>Charge@123</code></span><button type="button" class="btn btn-ghost btn-sm" id="fill">Auto-fill</button></div>
 </div></main>
 </div>
@@ -37,7 +39,8 @@
   function setRole(r){
     role=r;
     SD.$$('.role').forEach(function(b){var on=b.getAttribute('data-role')===r;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
-    $('#lidL').textContent=(r==='admin'?'Admin':'Customer')+' Login ID';
+    $('#lidL').textContent=r==='admin'?'Admin Login ID':'Customer Login ID or Email';
+    $('#suWrap').classList.toggle('hide',r==='admin');
     $('#lid').placeholder='e.g. '+demo[r][0];
     $('#dm').innerHTML='Demo: <code>'+demo[r][0]+'</code> / <code>'+demo[r][1]+'</code>';
     $('#lErr').classList.add('hide');$('#eId').textContent='';$('#ePw').textContent='';
@@ -45,10 +48,20 @@
   SD.$$('.role').forEach(function(b){b.onclick=function(){setRole(b.getAttribute('data-role'));$('#lid').focus();};});
   $('#fill').onclick=function(){$('#lid').value=demo[role][0];$('#lpw').value=demo[role][1];$('#eId').textContent='';$('#ePw').textContent='';$('#lErr').classList.add('hide');};
   $('#eye').onclick=function(){var p=$('#lpw'),s=p.type==='password';p.type=s?'text':'password';this.setAttribute('aria-label',s?'Hide password':'Show password');};
+  /* arriving from sign-up: show the new Login ID and pre-fill it */
+  try{
+    var q=new URLSearchParams(location.search),nid=q.get('id');
+    if(q.get('registered')==='1'&&/^CUST\d{3,8}$/i.test(nid||'')){
+      $('#lOk').innerHTML='Account created successfully! Sign in with Login ID <b></b> and the password you chose.';
+      $('#lOk').querySelector('b').textContent=nid.toUpperCase();$('#lOk').classList.remove('hide');
+      $('#lid').value=nid.toUpperCase();setTimeout(function(){$('#lpw').focus();},60);
+      history.replaceState(null,'',location.pathname);
+    }
+  }catch(x){}
   $('#lf').onsubmit=function(e){
     e.preventDefault();
     var id=$('#lid').value.trim(),pw=$('#lpw').value,ok=true,err=$('#lErr');
-    err.classList.add('hide');
+    err.classList.add('hide');$('#lOk').classList.add('hide');
     $('#eId').textContent=id.length<4?'Enter your login ID.':'';
     $('#ePw').textContent=pw.length<6?'Password must be at least 6 characters.':'';
     $('#lid').classList.toggle('err',id.length<4);$('#lpw').classList.toggle('err',pw.length<6);

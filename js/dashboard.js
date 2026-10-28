@@ -142,17 +142,40 @@
   /* ---------- auth ---------- */
   SD.getAuth = function () { try { return JSON.parse(sessionStorage.getItem(AK)); } catch (e) { return null; } };
   SD.pages = { customer: 'customer-dashboard.html', admin: 'admin-dashboard.html' };
+  /* customer password lives on the user record (sign-ups); the original demo customer keeps it in creds */
+  SD.pwOf = function (d, u) { return u && u.pw != null ? u.pw : (u && u.id === d.creds.customer.id ? d.creds.customer.pw : null); };
+  SD.setPw = function (d, uid, pw) {
+    var u = d.users.filter(function (x) { return x.id === uid; })[0];
+    if (u && (u.pw != null || uid !== d.creds.customer.id)) u.pw = pw; else d.creds.customer.pw = pw;
+  };
   SD.login = function (role, id, pw) {
-    var d = SD.get(), c = d.creds[role];
-    if (!c || c.id.toLowerCase() !== String(id).trim().toLowerCase() || c.pw !== pw) return { ok: false, msg: 'Invalid login ID or password for this account type.' };
-    var name = d.admin.name;
-    if (role === 'customer') {
-      var u = SD.user(c.id); if (!u) return { ok: false, msg: 'Account not found.' };
+    var d = SD.get(), key = String(id).trim().toLowerCase(), bad = { ok: false, msg: 'Invalid login ID or password for this account type.' }, who, name;
+    if (role === 'admin') {
+      var c = d.creds.admin;
+      if (!c || c.id.toLowerCase() !== key || c.pw !== pw) return bad;
+      who = c.id; name = d.admin.name;
+    } else if (role === 'customer') {
+      /* customers can sign in with their Login ID or their email */
+      var u = d.users.filter(function (x) { return x.id.toLowerCase() === key || String(x.email || '').toLowerCase() === key; })[0];
+      if (!u || SD.pwOf(d, u) !== pw) return bad;
       if (u.blocked) return { ok: false, msg: 'This account is blocked. Please contact Stackly support.' };
-      name = u.name;
-    }
-    try { sessionStorage.setItem(AK, JSON.stringify({ id: c.id, role: role, name: name, at: Date.now() })); } catch (e) { return { ok: false, msg: 'Browser storage is disabled. Please enable it to sign in.' }; }
+      who = u.id; name = u.name;
+    } else return bad;
+    try { sessionStorage.setItem(AK, JSON.stringify({ id: who, role: role, name: name, at: Date.now() })); } catch (e) { return { ok: false, msg: 'Browser storage is disabled. Please enable it to sign in.' }; }
     return { ok: true, page: SD.pages[role] };
+  };
+  /* create a new customer account. f = {name,email,phone,vehicle,pw} (already format-validated by the page) */
+  SD.register = function (f) {
+    try { localStorage.setItem('__stk', '1'); localStorage.removeItem('__stk'); } catch (e) { return { ok: false, msg: 'Browser storage is disabled. Please enable it to create an account.' }; }
+    var d = SD.get(), em = f.email.trim().toLowerCase();
+    if (d.users.some(function (u) { return String(u.email || '').toLowerCase() === em; })) return { ok: false, field: 'email', msg: 'An account with this email already exists. Try signing in.' };
+    if (d.users.some(function (u) { return u.phone === f.phone; })) return { ok: false, field: 'phone', msg: 'This mobile number is already registered.' };
+    var n = d.users.reduce(function (m, u) { var x = /^CUST(\d+)$/i.exec(u.id); return x ? Math.max(m, +x[1]) : m; }, 1029) + 1, id = 'CUST' + n;
+    d.users.push({ id: id, name: f.name.trim(), email: f.email.trim(), phone: f.phone, vehicle: (f.vehicle || '').trim(), wallet: 0, blocked: false, joined: SD.today(), pw: f.pw });
+    SD.notify(d, 'admin', 'New customer ' + f.name.trim() + ' (' + id + ') just registered.');
+    SD.notify(d, id, 'Welcome to Stackly, ' + f.name.trim().split(/\s+/)[0] + '! Add money to your wallet to book your first charging slot.');
+    SD.set(d);
+    return { ok: true, id: id };
   };
   SD.logout = function () { try { sessionStorage.removeItem(AK); } catch (e) { } location.replace('login.html'); };
 
@@ -280,6 +303,11 @@
       document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('stacklyTheme', t); } catch (e) { }
       charts.forEach(function (c) { draw(c, 1); });
     };
+    /* mobile: theme + sign out live in the sidebar (top-bar copies are hidden by CSS) */
+    var sa = document.createElement('div'); sa.className = 'side-actions';
+    sa.innerHTML = '<button type="button" class="btn btn-ghost" data-sa="theme">' + SD.icon('sun') + ' Switch theme</button><button type="button" class="btn btn-danger" data-sa="out">' + SD.icon('logout') + ' Sign out</button>';
+    side.insertBefore(sa, $('.who', side));
+    sa.onclick = function (e) { var b = e.target.closest('[data-sa]'); if (!b) return; if (b.getAttribute('data-sa') === 'theme') tb.click(); else { closeSide(); $('#logoutBtn').click(); } };
     $('#logoutBtn').onclick = function () { SD.confirm('Sign out of ' + SD.getAuth().id + '?', 'Sign out', SD.logout); };
     /* notifications */
     var bell = $('#bellBtn'), drop = $('#bellDrop'), target = role === 'admin' ? 'admin' : A.id;

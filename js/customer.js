@@ -186,15 +186,17 @@
       function f(id, c, m) { $(id).textContent = c ? '' : m; if (!c) ok = false; }
       f('#eN', SD.v.name(n), 'Letters only, 2–16 characters.'); f('#eE', SD.v.email(e), 'Enter a valid email address.'); f('#eP', SD.v.phone(p), 'Enter a 10-digit mobile starting with 6–9.');
       if (!ok) return;
-      var d = SD.get(), usr = d.users.filter(function (x) { return x.id === A.id; })[0]; usr.name = n; usr.email = e; usr.phone = p; usr.vehicle = $('#pV').value.trim(); SD.set(d);
+      var d = SD.get();
+      if (d.users.some(function (x) { return x.id !== A.id && String(x.email || '').toLowerCase() === e.toLowerCase(); })) { $('#eE').textContent = 'This email is used by another account.'; return; }
+      var usr = d.users.filter(function (x) { return x.id === A.id; })[0]; usr.name = n; usr.email = e; usr.phone = p; usr.vehicle = $('#pV').value.trim(); SD.set(d);
       A.name = n; try { sessionStorage.setItem('stacklyAuth', JSON.stringify(A)); } catch (x) { } SD.bindUser(); SD.toast('Profile updated.');
     };
     $('#pW').onclick = function () {
       var d = SD.get(), c = $('#cP').value, n = $('#nP').value, r = $('#rP').value, er = $('#eW');
-      if (c !== d.creds.customer.pw) { er.textContent = 'Current password is incorrect.'; return; }
+      if (c !== SD.pwOf(d, SD.user(A.id))) { er.textContent = 'Current password is incorrect.'; return; }
       if (!SD.v.pw(n)) { er.textContent = 'New password needs 6+ characters with a letter and a number.'; return; }
       if (n !== r) { er.textContent = 'Passwords do not match.'; return; }
-      d.creds.customer.pw = n; SD.set(d); er.textContent = ''; ['#cP', '#nP', '#rP'].forEach(function (i) { $(i).value = ''; }); SD.toast('Password updated.');
+      SD.setPw(d, A.id, n); SD.set(d); er.textContent = ''; ['#cP', '#nP', '#rP'].forEach(function (i) { $(i).value = ''; }); SD.toast('Password updated.');
     };
   }
 

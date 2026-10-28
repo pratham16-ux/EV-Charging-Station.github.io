@@ -23,6 +23,19 @@
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
+  /* mobile: put every header button inside the hamburger menu (hidden on desktop via CSS) */
+  (function () {
+    var m = $('.menu'); if (!m || $('.menu-actions', m)) return;
+    var box = document.createElement('div'); box.className = 'menu-actions';
+    $$('.nav-cta .btn').forEach(function (b) {
+      var c = b.cloneNode(true); c.classList.remove('btn-sm'); c.removeAttribute('style'); box.appendChild(c);
+    });
+    var su = document.createElement('a'); su.className = 'btn btn-ghost'; su.href = 'signup.html'; su.textContent = 'Create account'; box.appendChild(su);
+    /* primary action first, then Login, then Create account */
+    var pr = $('.btn-primary', box); if (pr) box.insertBefore(pr, box.firstChild);
+    m.appendChild(box);
+  })();
+
   /* mobile menu */
   var burger = $('.burger'), menu = $('.menu');
   function closeMenu() { if (!burger) return; burger.classList.remove('open'); menu.classList.remove('open'); document.body.style.overflow = ''; burger.setAttribute('aria-expanded', 'false'); }

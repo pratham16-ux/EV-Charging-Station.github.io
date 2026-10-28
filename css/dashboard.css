@@ -136,3 +136,29 @@ td .acts{gap:6px;flex-wrap:nowrap}
 .banner{border:1px solid rgba(245,185,75,.4);background:rgba(245,185,75,.1);color:var(--warn);padding:12px 16px;border-radius:var(--radius-sm);font-size:.88rem}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.8rem;color:var(--muted);margin-top:10px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 .ab{display:flex;gap:6px;flex-wrap:wrap}
+/* ---------- sign-up page + login notices ---------- */
+.alert.ok{background:rgba(45,226,176,.12);color:var(--accent);border:1px solid rgba(45,226,176,.35)}
+.alert b{font-family:var(--font-h);letter-spacing:.02em}
+.login-card .alt{margin-top:20px;text-align:center;font-size:.88rem;color:var(--muted)}
+.login-card .alt a{color:var(--accent);font-weight:600}.login-card .alt a:hover{text-decoration:underline}
+.meter{display:flex;gap:4px;margin-top:2px}.meter i{flex:1;height:4px;border-radius:4px;background:var(--line-2);transition:background .25s}
+.meter.s1 i:nth-child(-n+1){background:var(--danger)}
+.meter.s2 i:nth-child(-n+2){background:var(--warn)}
+.meter.s3 i:nth-child(-n+3){background:var(--info)}
+.meter.s4 i{background:var(--accent)}
+.mtxt{font-size:.74rem;color:var(--muted);min-height:1em}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--muted);cursor:pointer;line-height:1.5}
+.chk input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.chk a{color:var(--accent)}
+.opt{font-weight:400;color:var(--muted);opacity:.8}
+@media(max-width:520px){.login-main{padding:24px 18px}.login-card .top{margin-bottom:22px}}
+
+/* ---------- mobile: theme + sign-out move into the hamburger sidebar ---------- */
+.side-actions{display:none}
+@media(max-width:900px){
+  #themeBtn,#logoutBtn{display:none}
+  .side-actions{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+  .side-actions .btn{width:100%;justify-content:center;padding:12px 18px;font-size:.9rem}
+  .side-actions+.who{margin-top:0}
+  .top{gap:8px}
+}
